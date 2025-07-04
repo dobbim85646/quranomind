@@ -1,0 +1,148 @@
+<!DOCTYPE html><html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>QuranoMind – تفسير القرآن</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f4f8fc;
+            --text-color: #003366;
+            --card-bg: #ffffff;
+            --accent-color: #0077cc;
+            --hover-color: #005fa3;
+        }[data-theme="dark"] {
+        --bg-color: #121212;
+        --text-color: #e0e0e0;
+        --card-bg: #1e1e1e;
+        --accent-color: #0d7ce0;
+        --hover-color: #0a5da6;
+    }
+
+    body {
+        background: var(--bg-color);
+        color: var(--text-color);
+        font-family: 'Amiri', serif;
+        padding: 20px;
+        direction: rtl;
+        transition: all 0.3s ease;
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .toggle-theme {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        padding: 5px 10px;
+        background: var(--accent-color);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    form {
+        background: var(--card-bg);
+        padding: 20px;
+        margin: auto;
+        width: 90%;
+        max-width: 550px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    input, select {
+        width: 100%;
+        padding: 12px;
+        margin-top: 10px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        background: #fefefe;
+    }
+
+    input[type="submit"] {
+        background: var(--accent-color);
+        color: white;
+        border: none;
+        transition: 0.3s;
+    }
+
+    input[type="submit"]:hover {
+        background: var(--hover-color);
+    }
+
+    .result {
+        margin-top: 30px;
+        background: var(--card-bg);
+        padding: 20px;
+        border-right: 4px solid var(--accent-color);
+        border-radius: 10px;
+        line-height: 2;
+    }
+
+    .error {
+        color: red;
+        margin-top: 20px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --card-bg: #1e1e1e;
+            --accent-color: #0d7ce0;
+            --hover-color: #0a5da6;
+        }
+    }
+</style>
+
+</head>
+<body>
+    <button class="toggle-theme" onclick="toggleTheme()">تغيير الوضع</button><h2>🔍 تفسير آية من القرآن</h2>
+
+<form method="post">
+    <label>🌐 اختر اللغة:</label>
+    <select name="lang">
+        <option value="ar">Arabic</option>
+        <option value="en">English</option>
+    </select><br>
+
+    <label>📖 السورة (رقم أو اسم):</label>
+    <input name="surah" required><br>
+
+    <label>🔢 رقم الآية:</label>
+    <input name="ayah" required><br>
+
+    <input type="submit" value="عرض التفسير">
+</form>
+
+{% if tafsir %}
+    <div class="result">
+        <b>📘 التفسير بالعربية:</b><br>{{ tafsir }}
+        {% if translation %}
+            <br><br><b>📘 الترجمة بالإنجليزية:</b><br>{{ translation }}
+        {% endif %}
+    </div>
+{% elif error %}
+    <p class="error">{{ error }}</p>
+{% endif %}
+
+<script>
+    function toggleTheme() {
+        const theme = document.documentElement.getAttribute("data-theme");
+        if (theme === "dark") {
+            document.documentElement.removeAttribute("data-theme");
+        } else {
+            document.documentElement.setAttribute("data-theme", "dark");
+        }
+    }
+</script>
+
+</body>
+</html>

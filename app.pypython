@@ -1,0 +1,115 @@
+from flask import Flask, request, render_template_string
+import json
+import os
+from deep_translator import GoogleTranslator
+
+app = Flask(__name__)
+
+# مسارات البيانات
+TAFSIR_DIR = os.path.expanduser("QuranoMind/tafasir_json")
+SURAHS_FILE = os.path.expanduser("QuranoMind/data/surahs.json")
+
+# تحميل أسماء السور
+def load_surah_names():
+    with open(SURAHS_FILE, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+# تحويل اسم السورة إلى رقم
+def get_surah_number(name_or_number, surahs):
+    name_or_number = name_or_number.strip()
+    if name_or_number.isdigit():
+        return int(name_or_number)
+    for number, data in surahs.items():
+        if name_or_number.lower() in (data["arabic"].lower(), data["english"].lower()):
+            return int(number)
+    return None
+
+# جلب التفسير
+def get_tafsir(surah_num, ayah_num):
+    file_path = os.path.join(TAFSIR_DIR, f"{surah_num}.json")
+    if not os.path.exists(file_path):
+        return None
+    with open(file_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    return data.get(str(ayah_num))
+
+# الترجمة
+def translate(text):
+    try:
+        return GoogleTranslator(source="auto", target="en").translate(text)
+    except Exception:
+        return "[❌ Translation failed]"
+
+# القالب HTML
+HTML_TEMPLATE = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>QuranoMind Tafsir</title>
+    <style>
+        body { font-family: sans-serif; background: #f5f5f5; padding: 20px; }
+        h1 { color: #2c3e50; }
+        form { margin-bottom: 20px; }
+        textarea { width: 100%; height: 150px; padding: 10px; font-size: 16px; }
+        input, select, button { padding: 8px 12px; font-size: 16px; margin: 5px 0; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .result { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>QuranoMind 📘</h1>
+        <form method="post">
+            <label>Language:</label>
+            <select name="lang">
+                <option value="ar">Arabic</option>
+                <option value="en">English</option>
+            </select><br>
+            <label>Surah (Name or Number):</label><br>
+            <input type="text" name="surah"><br>
+            <label>Ayah Number:</label><br>
+            <input type="number" name="ayah"><br>
+            <button type="submit">Get Tafsir</button>
+        </form>
+        {% if tafsir %}
+            <div class="result">
+                <h3>📘 Tafsir:</h3>
+                <textarea readonly>{{ tafsir }}</textarea>
+                {% if lang == 'en' %}
+                    <h3>🌍 Translation:</h3>
+                    <textarea readonly>{{ translated }}</textarea>
+                {% endif %}
+            </div>
+        {% elif error %}
+            <p style="color: red;">❌ {{ error }}</p>
+        {% endif %}
+    </div>
+</body>
+</html>
+"""
+
+@app.route("/", methods=["GET", "POST"])
+def index():
+    tafsir = translated = error = ""
+    lang = request.form.get("lang", "ar")
+    if request.method == "POST":
+        surahs = load_surah_names()
+        surah_input = request.form.get("surah", "")
+        ayah = request.form.get("ayah", "")
+        surah_num = get_surah_number(surah_input, surahs)
+
+        if not surah_num or not ayah.isdigit():
+            error = "⚠️ أدخل رقم سورة وآية صالحين أو اسم سورة صحيح."
+        else:
+            tafsir = get_tafsir(surah_num, int(ayah))
+            if tafsir:
+                if lang == "en":
+                    translated = translate(tafsir)
+            else:
+                error = "❌ لم يتم العثور على التفسير."
+
+    return render_template_string(HTML_TEMPLATE, tafsir=tafsir, translated=translated, lang=lang, error=error)
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=5000)
