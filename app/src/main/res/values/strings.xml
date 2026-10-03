@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">QuranoMind</string>
+    <string name="app_subtitle">تفسير القرآن الكريم وفهم آياته</string>
+    <string name="tab_tafsir">التفسير</string>
+    <string name="tab_science">الكون والعلم</string>
+    <string name="tab_dreams">تفسير الرؤى</string>
+    <string name="tab_search">البحث</string>
+    <string name="tab_favorites">المفضلة</string>
+    <string name="tab_surahs">الفهرس</string>
+</resources>

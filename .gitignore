@@ -1,3 +1,30 @@
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+
+# Built application files
+build/
+**/build/
+.build-outputs/
+
+# Gradle files
+.gradle/
+buildOutput.txt
+
+# Local configuration
+local.properties
+.env
+
+# Android Studio / IntelliJ IDEA
+.idea/
+*.iml
+.DS_Store
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Legacy
 __pycache__/
 *.pyc
-.env
